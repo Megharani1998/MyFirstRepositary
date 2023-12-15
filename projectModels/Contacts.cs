@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace projectModels
 {
-    internal class Contacts
+    public class Contacts
     {
 
         [Key]
