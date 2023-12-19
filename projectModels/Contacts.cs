@@ -56,7 +56,7 @@ namespace projectModels
         [Display(Name="Zip Code")]
         [Required(ErrorMessage ="Zip code is required")]
         [StringLength(ContactManagerConstants.MAX_ZIP_CODE_LENGTH, MinimumLength = ContactManagerConstants.MIN_ZIP_CODE_LENGTH)]
-        [RegularExpression("^(?i)(\\d{5}(-\\d{4})?|[A-CEGHJ-NPRSTVXY]\\d[A-CEGHJ-NPRSTV-Z] ?\\d[A-CEGHJ-NPRSTV-Z]\\d)$\r\n",ErrorMessage ="Zip code is Invalid!")]
+       
         public string Zip { get; set; }
 
         [Required(ErrorMessage ="The UserIs is required in order to map the contact to a user correctly")]
