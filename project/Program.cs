@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyContactManagerData;
+using MyContactManagerRepo;
+using MyContactsManagerServices;
 using project.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,10 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IStateService, StatesServices>();
+builder.Services.AddScoped<IStateRepositary, StatesRepositary>();
+builder.Services.AddScoped<IContactsRepositary, ContactsRepositary>();
+builder.Services.AddScoped<IContactsSerivce, ContactsService>();
 
 var app = builder.Build();
 
