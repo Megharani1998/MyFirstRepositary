@@ -11,39 +11,39 @@ namespace MyContactsManagerServices
     public class ContactsService : IContactsSerivce
     {
         private IContactsRepositary _contactsRepositary;
-        public ContactsService(IContactsRepositary contactsRepositary ) {
-                _contactsRepositary = contactsRepositary;
-        
-        }
-        public async Task<IList<Contacts>> GetAllAsync()
+        public ContactsService(IContactsRepositary contactsRepositary)
         {
-           return await _contactsRepositary.GetAllAsync();
+            _contactsRepositary = contactsRepositary;
+
+        }
+        public async Task<IList<Contacts>> GetAllAsync(string userId)
+        {
+            return await _contactsRepositary.GetAllAsync(userId);
         }
 
-        public async Task<Contacts?> GetAsync(int id)
+        public async Task<Contacts?> GetAsync(int id, string userId)
         {
-            return await _contactsRepositary.GetAsync(id);
+            return await _contactsRepositary.GetAsync(id, userId);
         }
-        public async Task<int> AddOrUpdateAsync(Contacts contacts)
+        public async Task<int> AddOrUpdateAsync(Contacts contacts, string userId)
         {
-            return await _contactsRepositary.AddOrUpdateAsync(contacts);
-        }
-
-        public async Task<int> DeleteAsync(int id)
-        {
-            return await _contactsRepositary.DeleteAsync(id);
+            return await _contactsRepositary.AddOrUpdateAsync(contacts, userId);
         }
 
-        public async Task<int> DeleteAsync(Contacts contacts)
+        public async Task<int> DeleteAsync(int id, string userId)
         {
-            return await _contactsRepositary.DeleteAsync(contacts);
+            return await _contactsRepositary.DeleteAsync(id, userId);
         }
 
-        public Task<bool> ExistsAsync(int id)
+        public async Task<int> DeleteAsync(Contacts contacts, string userId)
         {
-            return _contactsRepositary.ExistsAsync(id);
+            return await _contactsRepositary.DeleteAsync(contacts, userId);
         }
 
-      
+        public Task<bool> ExistsAsync(int id, string userId)
+        {
+            return _contactsRepositary.ExistsAsync(id, userId);
+        }
+
     }
 }

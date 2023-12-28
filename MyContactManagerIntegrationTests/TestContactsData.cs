@@ -115,24 +115,20 @@ namespace MyContactManagerIntegrationTests
         [Theory]
 
 
-        [InlineData(FIRST_NAME_1, LAST_NAME_1, EMAIL_1, USERID1, 1)]
-        [InlineData(FIRST_NAME_2, LAST_NAME_2, EMAIL_2, USERID1, 2)]
-        [InlineData(FIRST_NAME_3, LAST_NAME_3, EMAIL_3, USERID2, 3)]
-        [InlineData(FIRST_NAME_4, LAST_NAME_4, EMAIL_4, USERID2, 4)]
-        [InlineData(FIRST_NAME_5, LAST_NAME_5, EMAIL_5, USERID3, 5)]
-        public async Task TestGetAllContacts(string firstName, string lastName, string email, string userId, int index)
+        [InlineData(FIRST_NAME_1, LAST_NAME_1, EMAIL_1, USERID1, 1, 2)]
+        [InlineData(FIRST_NAME_2, LAST_NAME_2, EMAIL_2, USERID1, 0, 2)]
+        [InlineData(FIRST_NAME_3, LAST_NAME_3, EMAIL_3, USERID2, 1, 2)]
+        [InlineData(FIRST_NAME_4, LAST_NAME_4, EMAIL_4, USERID2, 0, 2)]
+        [InlineData(FIRST_NAME_5, LAST_NAME_5, EMAIL_5, USERID3, 0, 1)]
+        public async Task TestGetAllContacts(string firstName, string lastName, string email, string userId, int index,int expectedCount)
         {
 
             using (var context = new MyContactDBManagerContext(_options))
             {
                 //_repositary = new ContactsRepositary(context);
                 _repositary = new ContactsRepositary(context);
-                var contacts = await _repositary.GetAllAsync();
-               
-                Console.WriteLine($"Number of contacts: {contacts.Count}");
-                Console.WriteLine($"Contact IDs: {string.Join(", ", contacts.Select(c => c.Id))}");
-
-                contacts.Count.ShouldBe(NUMBER_OF_CONTACTS);
+                var contacts = await _repositary.GetAllAsync(userId);
+                contacts.Count.ShouldBe(expectedCount);
                 contacts[index].FirstName.ShouldBe(firstName, StringCompareShould.IgnoreCase);
                 contacts[index].LastName.ShouldBe(lastName, StringCompareShould.IgnoreCase);
                 contacts[index].Email.ShouldBe(email, StringCompareShould.IgnoreCase);
@@ -151,7 +147,7 @@ namespace MyContactManagerIntegrationTests
             using (var context = new MyContactDBManagerContext(_options))
             {
                 _repositary = new ContactsRepositary(context);
-                var contacts = await _repositary.GetAsync(contactId);
+                var contacts = await _repositary.GetAsync(contactId,userId);
                 contacts.ShouldNotBeNull();
                 contacts.FirstName.ShouldBe(firstName, StringCompareShould.IgnoreCase);
                 contacts.LastName.ShouldBe(lastName, StringCompareShould.IgnoreCase);
@@ -162,18 +158,18 @@ namespace MyContactManagerIntegrationTests
             }
         }
         [Theory]
-        [InlineData(FIRST_NAME_1, LAST_NAME_1, EMAIL_1, USERID1, 4)]
-        [InlineData(FIRST_NAME_2, LAST_NAME_2, EMAIL_2, USERID1, 1)]
+        [InlineData(FIRST_NAME_1, LAST_NAME_1, EMAIL_1, USERID1, 1)]
+        [InlineData(FIRST_NAME_2, LAST_NAME_2, EMAIL_2, USERID1, 2)]
         [InlineData(FIRST_NAME_3, LAST_NAME_3, EMAIL_3, USERID2, 3)]
-        [InlineData(FIRST_NAME_4, LAST_NAME_4, EMAIL_4, USERID2, 5)]
-        [InlineData(FIRST_NAME_5, LAST_NAME_5, EMAIL_5, USERID3, 2)]
-        public async Task canNotGetSomeoneElseContacts(string firstName, string lastName, string email, string userI, int contactId)
+        [InlineData(FIRST_NAME_4, LAST_NAME_4, EMAIL_4, USERID2, 4)]
+        [InlineData(FIRST_NAME_5, LAST_NAME_5, EMAIL_5, USERID3, 5)]
+        public async Task canNotGetSomeoneElseContacts(string firstName, string lastName, string email, string userId, int contactId)
         {
 
             using (var context = new MyContactDBManagerContext(_options))
             {
                 _repositary = new ContactsRepositary(context);
-                var contact = await _repositary.GetAsync(contactId);
+                var contact = await _repositary.GetAsync(contactId, userId);
                 contact.ShouldNotBeNull();
 
             }
@@ -184,22 +180,22 @@ namespace MyContactManagerIntegrationTests
             using (var context = new MyContactDBManagerContext(_options))
             {
                 _repositary = new ContactsRepositary(context);
-                var contactToUpdate = await _repositary.GetAsync(5);
+                var contactToUpdate = await _repositary.GetAsync(5,USERID3);
                 contactToUpdate.ShouldNotBeNull();
                 contactToUpdate.FirstName.ShouldBe(FIRST_NAME_5, StringCompareShould.IgnoreCase);
 
                 contactToUpdate.FirstName = FIRST_NAME_5_UPDATED;
-                await _repositary.AddOrUpdateAsync(contactToUpdate);
+                await _repositary.AddOrUpdateAsync(contactToUpdate, USERID3);
 
-                var updatedContact = await _repositary.GetAsync(5);
+                var updatedContact = await _repositary.GetAsync(5,USERID3);
                 updatedContact.ShouldNotBe(null);
                 updatedContact.FirstName.ShouldBe(FIRST_NAME_5_UPDATED, StringCompareShould.IgnoreCase);
 
                 //put it back
                 updatedContact.FirstName = FIRST_NAME_5;
-                await _repositary.AddOrUpdateAsync(updatedContact);
+                await _repositary.AddOrUpdateAsync(updatedContact, USERID3);
 
-                var revertedState = await _repositary.GetAsync(5);
+                var revertedState = await _repositary.GetAsync(5,USERID3);
                 revertedState.ShouldNotBe(null);
                 revertedState.FirstName.ShouldBe(FIRST_NAME_5, StringCompareShould.IgnoreCase);
 
@@ -227,15 +223,15 @@ namespace MyContactManagerIntegrationTests
                     UserId = USERID2,
                     Zip = "12111"
                 };
-                await _repositary.AddOrUpdateAsync(contactToAdd);
-                var updatedContact = await _repositary.GetAsync(contactToAdd.Id);
+                await _repositary.AddOrUpdateAsync(contactToAdd, USERID2);
+                var updatedContact = await _repositary.GetAsync(contactToAdd.Id, USERID2);
                 updatedContact.ShouldNotBe(null);
                 updatedContact.FirstName.ShouldBe("Measf", StringCompareShould.IgnoreCase);
                 updatedContact.Email.ShouldBe("ma@com", StringCompareShould.IgnoreCase);
 
                 //delete to keep current cound and list in tact
-                await _repositary.DeleteAsync(updatedContact.Id);
-                var deletedCont = await _repositary.GetAsync(updatedContact.Id);
+                await _repositary.DeleteAsync(updatedContact.Id, USERID2);
+                var deletedCont = await _repositary.GetAsync(updatedContact.Id, USERID2);
                 deletedCont.ShouldBe(null);
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -54,13 +55,19 @@ namespace project.Controllers
             contact.State = state;
             TryValidateModel(contact);
 
-            
-        }
+         }
+        protected async Task<string> GetCurrentUserId() {
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return userId;
+
+        
+        }
         // GET: Contacts
         public async Task<IActionResult> Index()
         {
-            var contacts = await _conatactsSerivce.GetAllAsync();
+            var userId = await GetCurrentUserId();
+            var contacts = await _conatactsSerivce.GetAllAsync(userId);
             return View(contacts);
         }
 
@@ -71,8 +78,8 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-
-            var contacts = await _conatactsSerivce.GetAsync((int)id);
+            var userId = await GetCurrentUserId();
+            var contacts = await _conatactsSerivce.GetAsync((int)id,userId);
                
             if (contacts == null)
             {
@@ -99,7 +106,9 @@ namespace project.Controllers
             UpdateStateAndResetModelState(contacts);
             if (ModelState.IsValid)
             {
-               await _conatactsSerivce.AddOrUpdateAsync(contacts);
+                var userId = await GetCurrentUserId();
+                contacts.UserId = userId;
+                await _conatactsSerivce.AddOrUpdateAsync(contacts,userId);
                 return RedirectToAction(nameof(Index));
             }
             ViewData["StateId"] = _statesData;
@@ -113,8 +122,9 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-
-            var contacts =  await _conatactsSerivce.GetAsync((int)id);
+            var userId = await GetCurrentUserId();
+            
+            var contacts =  await _conatactsSerivce.GetAsync((int)id, userId);
             if (contacts == null)
             {
                 return NotFound();
@@ -139,8 +149,9 @@ namespace project.Controllers
             {
                 try
                 {
-
-                    await _conatactsSerivce.AddOrUpdateAsync(contacts);
+                    var userId = await GetCurrentUserId();
+                    contacts.UserId = userId;
+                    await _conatactsSerivce.AddOrUpdateAsync(contacts,userId);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -166,8 +177,8 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-
-            var contacts = await _conatactsSerivce.GetAsync((int)id);
+            var userId = await GetCurrentUserId();
+            var contacts = await _conatactsSerivce.GetAsync((int)id, userId);
             if (contacts == null)
             {
                 return NotFound();
@@ -181,13 +192,16 @@ namespace project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _conatactsSerivce.DeleteAsync(id);
+            var userId = await GetCurrentUserId();
+
+            await _conatactsSerivce.DeleteAsync(id,userId);
             return RedirectToAction(nameof(Index));
         }
 
         private async Task<bool>ContactsExists(int id)
         {
-            return await _conatactsSerivce.ExistsAsync(id);
+            var userId = await GetCurrentUserId();
+            return await _conatactsSerivce.ExistsAsync(id, userId);
         }
 
     }

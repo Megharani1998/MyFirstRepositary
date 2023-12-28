@@ -51,8 +51,8 @@ namespace MyContactManagerUnitTest
             var contacts = GetContactsTestData();
             var singleContact = GetSingleContact();
 
-            _contactsRepositary.Setup(x => x.GetAllAsync()).Returns(contacts);
-            _contactsRepositary.Setup(x => x.GetAsync(It.IsAny<int>())).Returns(singleContact);
+            _contactsRepositary.Setup(x => x.GetAllAsync(It.IsAny<string>())).Returns(contacts);
+            _contactsRepositary.Setup(x => x.GetAsync(It.IsAny<int>(),It.IsAny<string>())).Returns(singleContact);
         }
 
         private async Task<Contacts?> GetSingleContact()
@@ -111,7 +111,7 @@ namespace MyContactManagerUnitTest
         [InlineData(FIRST_NAME_5, LAST_NAME_5, EMAIL_5, USERID3, 4)]
         public async Task TestGetAllContacts(string firstName, string lastName, string email, string userId, int index)
         {
-            var contacts = await _contactsSerivce.GetAllAsync();
+            var contacts = await _contactsSerivce.GetAllAsync(USERID1);
             contacts.Count.ShouldBe(NUMBER_OF_CONTACTS);
             contacts[index].FirstName.ShouldBe(firstName, StringCompareShould.IgnoreCase);
             contacts[index].LastName.ShouldBe(lastName, StringCompareShould.IgnoreCase);
@@ -123,7 +123,7 @@ namespace MyContactManagerUnitTest
         [Fact]
         public async Task TestGetAContact()
         {
-            var contacts = await _contactsSerivce.GetAsync(123);
+            var contacts = await _contactsSerivce.GetAsync(123,"asdf");
             contacts.ShouldNotBeNull();
             contacts.FirstName.ShouldBe(FIRST_NAME_4, StringCompareShould.IgnoreCase);
             contacts.LastName.ShouldBe(LAST_NAME_4, StringCompareShould.IgnoreCase);

@@ -10,11 +10,11 @@ namespace MyContactsManagerServices
     public interface IContactsSerivce
     {
 
-        Task<IList<Contacts>> GetAllAsync();
-        Task<Contacts?> GetAsync(int id);
-        Task<int> AddOrUpdateAsync(Contacts contacts);
-        Task<int> DeleteAsync(int id);
-        Task<int> DeleteAsync(Contacts contacts);
-        Task<bool> ExistsAsync(int id);
+        Task<IList<Contacts>> GetAllAsync(string userId);
+        Task<Contacts?> GetAsync(int id, string userId);
+        Task<int> AddOrUpdateAsync(Contacts contacts, string userId);
+        Task<int> DeleteAsync(int id, string userId);
+        Task<int> DeleteAsync(Contacts contacts, string userId);
+        Task<bool> ExistsAsync(int id, string userId);
     }
 }
