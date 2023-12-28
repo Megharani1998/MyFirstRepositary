@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MyContactManagerData;
+using MyContactsManagerServices;
+using project.Models;
 using projectModels;
 
 namespace project.Controllers
@@ -13,15 +16,34 @@ namespace project.Controllers
     public class ContactsController : Controller
 
     {
-        private readonly MyContactDBManagerContext _context;
+        
+        private readonly IContactsSerivce _conatactsSerivce;
+        private readonly IStateService _statesSerivce;
         private static List<State> _allStates;
         private static SelectList _statesData;
+        private IMemoryCache _cache;
 
-        public ContactsController(MyContactDBManagerContext context)
+        public ContactsController( IContactsSerivce contactsSerivce,IStateService stateService,IMemoryCache cache)
         {
-             _context = context;
-             _allStates = Task.Run(() => _context.States.ToListAsync()).Result;
+            
+            _cache = cache;
+            _conatactsSerivce=contactsSerivce;
+        _statesSerivce=stateService;    
+            SetAllStatesCachingData();
               _statesData = new SelectList(_allStates, "Id", "Abbreviation");
+
+
+   }
+        public void SetAllStatesCachingData()
+        {
+            var allStates = new List<State>();
+            if (!_cache.TryGetValue(ContactsCacheConstants.ALL_STATES, out allStates))
+            {
+                var allStatesData = Task.Run(()=> _statesSerivce.GetAllAsync()).Result;
+                _cache.Set(ContactsCacheConstants.ALL_STATES, allStatesData, TimeSpan.FromDays(1));
+                allStates = _cache.Get(ContactsCacheConstants.ALL_STATES) as List<State>;
+            }
+             _allStates = allStates;
 
         }
         private async Task UpdateStateAndResetModelState(Contacts contact)
@@ -38,8 +60,8 @@ namespace project.Controllers
         // GET: Contacts
         public async Task<IActionResult> Index()
         {
-            var contacts = _context.Contacts.Include(c => c.State);
-            return View(await contacts.ToListAsync());
+            var contacts = await _conatactsSerivce.GetAllAsync();
+            return View(contacts);
         }
 
         // GET: Contacts/Details/5
@@ -50,9 +72,8 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var contacts = await _context.Contacts
-                .Include(c => c.State)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var contacts = await _conatactsSerivce.GetAsync((int)id);
+               
             if (contacts == null)
             {
                 return NotFound();
@@ -78,8 +99,7 @@ namespace project.Controllers
             UpdateStateAndResetModelState(contacts);
             if (ModelState.IsValid)
             {
-                _context.Contacts.AddAsync(contacts);
-                await _context.SaveChangesAsync();
+               await _conatactsSerivce.AddOrUpdateAsync(contacts);
                 return RedirectToAction(nameof(Index));
             }
             ViewData["StateId"] = _statesData;
@@ -94,7 +114,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var contacts = await _context.Contacts.FindAsync(id);
+            var contacts =  await _conatactsSerivce.GetAsync((int)id);
             if (contacts == null)
             {
                 return NotFound();
@@ -114,17 +134,17 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-            UpdateStateAndResetModelState(contacts);
+           await UpdateStateAndResetModelState(contacts);
             if (ModelState.IsValid)
             {
                 try
                 {
-                  _context.Contacts.Update(contacts);
-                    await _context.SaveChangesAsync();
+
+                    await _conatactsSerivce.AddOrUpdateAsync(contacts);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ContactsExists(contacts.Id))
+                    if (! await ContactsExists(contacts.Id))
                     {
                         return NotFound();
                     }
@@ -147,9 +167,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var contacts = await _context.Contacts
-                .Include(c => c.State)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var contacts = await _conatactsSerivce.GetAsync((int)id);
             if (contacts == null)
             {
                 return NotFound();
@@ -163,19 +181,14 @@ namespace project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contacts = await _context.Contacts.FindAsync(id);
-            if (contacts != null)
-            {
-                _context.Contacts.Remove(contacts);
-            }
-
-            await _context.SaveChangesAsync();
+            await _conatactsSerivce.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ContactsExists(int id)
+        private async Task<bool>ContactsExists(int id)
         {
-            return _context.Contacts.Any(e => e.Id == id);
+            return await _conatactsSerivce.ExistsAsync(id);
         }
+
     }
 }

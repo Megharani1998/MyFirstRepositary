@@ -5,24 +5,44 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MyContactManagerData;
+using MyContactsManagerServices;
+using project.Models;
 using projectModels;
 
 namespace project.Controllers
 {
     public class StatesController : Controller
     {
-        private readonly MyContactDBManagerContext _context;
-
-        public StatesController(MyContactDBManagerContext context)
+       
+        //private readonly MyContactDBManagerContext _context;
+        private readonly IStateService _stateService;
+        private readonly IMemoryCache _cache;
+        /*
+        public StatesController(MyContactDBManagerContext context,IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
+        }
+        */
+        public StatesController(IStateService statesService, IMemoryCache cache)
+        {
+            _stateService = statesService;
+            _cache = cache;
         }
 
         // GET: States
         public async Task<IActionResult> Index()
         {
-            return View(await _context.States.ToListAsync());
+            var allStates = new List<State>();
+            if (!_cache.TryGetValue(ContactsCacheConstants.ALL_STATES, out allStates))
+            {
+                var allStatesData = await _stateService.GetAllAsync()as List<State>;
+                _cache.Set(ContactsCacheConstants.ALL_STATES, allStatesData, TimeSpan.FromDays(1));
+                  return View(allStatesData);
+            }
+            return View(allStates);
         }
 
         // GET: States/Details/5
@@ -33,8 +53,9 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var state = await _context.States
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // var state = await _context.States
+            //    .FirstOrDefaultAsync(m => m.Id == id);
+            var state = await _stateService.GetAsync((int)id);
             if (state == null)
             {
                 return NotFound();
@@ -58,8 +79,11 @@ namespace project.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(state);
-                await _context.SaveChangesAsync();
+               // _context.Add(state);
+                //await _context.SaveChangesAsync();
+
+                await _stateService.AddOrUpdateAsync(state);
+                _cache.Remove(ContactsCacheConstants.ALL_STATES);
                 return RedirectToAction(nameof(Index));
             }
             return View(state);
@@ -72,8 +96,8 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-
-            var state = await _context.States.FindAsync(id);
+            var state = await _stateService.GetAsync((int)id);
+           // var state = await _context.States.FindAsync(id);
             if (state == null)
             {
                 return NotFound();
@@ -97,8 +121,9 @@ namespace project.Controllers
             {
                 try
                 {
-                    _context.Update(state);
-                    await _context.SaveChangesAsync();
+                    // _context.Update(state);
+                    //await _context.SaveChangesAsync();
+                    await _stateService.AddOrUpdateAsync(state);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +149,9 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var state = await _context.States
-                .FirstOrDefaultAsync(m => m.Id == id);
+            //var state = await _context.States
+               // .FirstOrDefaultAsync(m => m.Id == id);
+            var state = await _stateService.GetAsync((int)id);
             if (state == null)
             {
                 return NotFound();
@@ -139,19 +165,19 @@ namespace project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var state = await _context.States.FindAsync(id);
-            if (state != null)
-            {
-                _context.States.Remove(state);
-            }
 
-            await _context.SaveChangesAsync();
+            //var state = await _context.States.FindAsync(id);
+            //_context.States.Remove(state);
+            // await _context.SaveChangesAsync();
+            await _stateService.DeleteAsync(id);
+            _cache.Remove(ContactsCacheConstants.ALL_STATES);
             return RedirectToAction(nameof(Index));
         }
 
         private bool StateExists(int id)
         {
-            return _context.States.Any(e => e.Id == id);
+            return Task.Run(()=> _stateService.ExistsAsync(id)).Result;
+
         }
     }
 }
