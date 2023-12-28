@@ -3,11 +3,11 @@ using projectModels;
 
 namespace MyContactsManagerServices
 {
-    public class StatesServices : IStateService
+    public class StatesService : IStateService
     {
         private IStateRepositary _statesRepositary;
 
-        public StatesServices(IStateRepositary stateRepositary)
+        public StatesService(IStateRepositary stateRepositary)
         { 
           _statesRepositary = stateRepositary;
         }

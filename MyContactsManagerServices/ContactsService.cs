@@ -1,4 +1,5 @@
-﻿using projectModels;
+﻿using MyContactManagerRepo;
+using projectModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,34 +10,40 @@ namespace MyContactsManagerServices
 {
     public class ContactsService : IContactsSerivce
     {
-        public Task<int> AddOrUpdateAsync(Contacts contacts)
+        private IContactsRepositary _contactsRepositary;
+        public ContactsService(IContactsRepositary contactsRepositary ) {
+                _contactsRepositary = contactsRepositary;
+        
+        }
+        public async Task<IList<Contacts>> GetAllAsync()
         {
-            throw new NotImplementedException();
+           return await _contactsRepositary.GetAllAsync();
         }
 
-        public Task<int> DeleteAsync(int id)
+        public async Task<Contacts?> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _contactsRepositary.GetAsync(id);
+        }
+        public async Task<int> AddOrUpdateAsync(Contacts contacts)
+        {
+            return await _contactsRepositary.AddOrUpdateAsync(contacts);
         }
 
-        public Task<int> DeleteAsync(Contacts contacts)
+        public async Task<int> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _contactsRepositary.DeleteAsync(id);
+        }
+
+        public async Task<int> DeleteAsync(Contacts contacts)
+        {
+            return await _contactsRepositary.DeleteAsync(contacts);
         }
 
         public Task<bool> ExistsAsync(int id)
         {
-            throw new NotImplementedException();
+            return _contactsRepositary.ExistsAsync(id);
         }
 
-        public Task<IList<Contacts>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Contacts?> GetAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

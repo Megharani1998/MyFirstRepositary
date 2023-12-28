@@ -26,19 +26,22 @@ namespace MyContactManagerData
             public MyContactDBManagerContext(DbContextOptions<MyContactDBManagerContext> options) : base(options)
             {
             }
-       
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var builder = new ConfigurationBuilder().
-           SetBasePath(Directory.GetCurrentDirectory())
-           .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            _configuration = builder.Build();
+            if (!optionsBuilder.IsConfigured)
+            {
+                var builder = new ConfigurationBuilder().
+               SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                _configuration = builder.Build();
 
 
-            var cnstr = _configuration.GetConnectionString("MyContactManager");
-           
-           optionsBuilder.UseSqlServer(cnstr);
+                var cnstr = _configuration.GetConnectionString("MyContactManager");
+
+                optionsBuilder.UseSqlServer(cnstr);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
