@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,9 +11,11 @@ using projectModels;
 
 namespace project.Controllers
 {
+    [Authorize]
     public class ContactsController : Controller
 
     {
+
         private readonly MyContactDBManagerContext _context;
         private static List<State> _allStates;
         private static SelectList _statesData;
@@ -60,6 +63,8 @@ namespace project.Controllers
 
             return View(contacts);
         }
+
+        [Authorize]
 
         // GET: Contacts/Create
         public IActionResult Create()
