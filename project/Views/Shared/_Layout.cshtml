@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - project</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href = "~/css/datatables.min.css" asp-append-version="true" />
+
     <link rel="stylesheet" href="~/project.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -36,11 +38,13 @@
                                ? "active-link" : "")" asp-area="" asp-controller="Contacts" asp-action="Index">Contacts</a>
                             </li>
                             
-                           
+                           @if(User?.IsInRole("Admin")?? false)
+                           {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Controller"]?.ToString() == "States"
                                ? "active-link" : "")" asp-area="" asp-controller="States" asp-action="Index">State</a>
                                 </li>
+                           }
                             
                         }
                     </ul>
@@ -62,6 +66,7 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/databaseTables/datatables.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
