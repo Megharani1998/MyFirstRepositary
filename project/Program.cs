@@ -18,12 +18,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+.AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IStateRepositary, StatesRepositary>();
 builder.Services.AddScoped<IStateService, StatesService>();
 builder.Services.AddScoped<IContactsRepositary, ContactsRepositary>();
 builder.Services.AddScoped<IContactsSerivce, ContactsService>();
+builder.Services.AddScoped<IUserRolesService, UserRolesService>();
 
 var app = builder.Build();
 
