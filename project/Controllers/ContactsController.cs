@@ -106,6 +106,8 @@ namespace project.Controllers
             UpdateStateAndResetModelState(contacts);
             if (ModelState.IsValid)
             {
+
+
                 var userId = await GetCurrentUserId();
                 contacts.UserId = userId;
                 await _conatactsSerivce.AddOrUpdateAsync(contacts,userId);
