@@ -45,6 +45,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Zip)
             </th>
+            
            
             <th></th>
         </tr>
@@ -87,20 +88,153 @@
                     @Html.HiddenFor(modelItem => item.UserId)
             </td>
             
+
+            
             <td>
                 
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+
+
+
+                <a href ="#" data-bs-toggle="modal" data-bs-target ="#contactDetailsModal"
+                       data-bs-friendlyName="@item.FirendlyName" data-bs-firstName ="@item.FirstName"
+                data-bs-lastName ="@item.LastName" data-bs-email ="@item.Email" data-bs-phone1 ="@item.PhonePrimary"
+                       data-bs-phone2="@item.PhoneSecondary" data-bs-birthdate="@item.BirthDate.ToShortDateString()"
+                       data-bs-city="@item.City"
+                data-bs-friendlyaddress = "@item.FriendlyAddress" >
+                Details</a> |
+
+
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
+
 }
     </tbody>
 </table>
 
+
+<div class="modal fade" id="contactDetailsModal" tabindex="-1" aria-labelledby="contactDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactDetailsModal">New message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <dl class="row">
+                    
+                   <dt class="col-sm-4">
+                       First Name:
+                   </dt>
+                   <dd class="col-sm-8">
+                       <span class="modal-first-name">
+                   </dd>
+                    <dt class="col-sm-4">
+                        Larst Name:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-last-name">
+                    </dd>
+                    <dt class="col-sm-4">
+                        Email Address:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-email-address">
+                    </dd>
+                    <dt class="col-sm-4">
+                        Primary Phone:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-primary-phone">
+                    </dd>
+                    </dd>
+                    <dt class="col-sm-4">
+                        Secondary Phone:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-secondary-phone">
+                    </dd>
+                    <dt class="col-sm-4">
+                        Birth Date:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-birthdate">
+                    </dd>
+                    <dt class="col-sm-4">
+                        city:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-city">
+                    </dd>
+                    <dt class="col-sm-4">
+                        Address:
+                    </dt>
+                    <dd class="col-sm-8">
+                        <span class="modal-street-address">
+                    </dd>
+                    
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
 
     <script type="text/javascript">
-        $("#contacts_table").DataTable();    
+        $("#contacts_table").DataTable();
+        var contactDetailsModal = document.getElementById('contactDetailsModal')
+        contactDetailsModal.addEventListener('show.bs.modal', function (event) {
+
+           // alert('here');
+
+            // Button that triggered the modal
+            var button = event.relatedTarget
+
+            var title = button.getAttribute('data-bs-friendlyName');
+            var firstName = button.getAttribute('data-bs-firstName');
+            var lastName = button.getAttribute('data-bs-lastName');
+            var email = button.getAttribute('data-bs-email');
+            var phone1 = button.getAttribute('data-bs-phone1');
+            var phone2 = button.getAttribute('data-bs-phone2');
+            var birthdate = button.getAttribute('data-bs-birthdate');
+            var city = button.getAttribute('data-bs-city');
+            var address = button.getAttribute('data-bs-friendlyaddress');
+           
+            // If necessary, you could initiate an AJAX request here
+            // and then do the updating in a callback.
+            //
+            // Update the modal's content.
+           // alert('title');
+
+            var modalTitle = contactDetailsModal.querySelector('.modal-title');
+            modalTitle.textContent = title;
+            var modalFirstName = contactDetailsModal.querySelector('.modal-first-name');
+            modalFirstName.textContent = firstName;
+            var modalLastName = contactDetailsModal.querySelector('.modal-last-name');
+            modalLastName.textContent = lastName;
+            var modalEmail = contactDetailsModal.querySelector('.modal-email-address');
+            modalEmail.textContent = email;
+            var modelPhone1 = contactDetailsModal.querySelector('.modal-primary-phone');
+            modelPhone1.textContent = phone1;
+            var modelPhone2 = contactDetailsModal.querySelector('.modal-secondary-phone');
+            modelPhone2.textContent = phone2;
+            var modalBirthDate = contactDetailsModal.querySelector('.modal-birthdate');
+            modalBirthDate.textContent = birthdate;
+            var modalCity = contactDetailsModal.querySelector('.modal-city');
+            modalCity.textContent = city;
+            var modalAddress = contactDetailsModal.querySelector('.modal-street-address');
+            modalAddress.textContent = address;
+
+            
+         
+
+           
+        })
     </script>
 }
