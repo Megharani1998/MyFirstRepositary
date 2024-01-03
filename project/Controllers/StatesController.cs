@@ -2,23 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using MyContactManagerData;
 using MyContactsManagerServices;
+using project.Data;
 using project.Models;
 using projectModels;
 
 namespace project.Controllers
 {
+    [Authorize (Roles = UserRolesService.ADMIN_ROLE_NAME)]
     public class StatesController : Controller
     {
        
         //private readonly MyContactDBManagerContext _context;
         private readonly IStateService _stateService;
         private readonly IMemoryCache _cache;
+
         /*
         public StatesController(MyContactDBManagerContext context,IMemoryCache cache)
         {

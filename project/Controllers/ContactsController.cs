@@ -32,6 +32,7 @@ namespace project.Controllers
         _statesSerivce=stateService;    
             SetAllStatesCachingData();
               _statesData = new SelectList(_allStates, "Id", "Abbreviation");
+           
 
 
    }
@@ -103,11 +104,13 @@ namespace project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Email,PhonePrimary,PhoneSecondary,BirthDate,StreetAddress1,StreetAddress2,City,StateId,Zip,UserId")] Contacts contacts)
         {
-            UpdateStateAndResetModelState(contacts);
+            var userId = await GetCurrentUserId();
+            contacts.UserId = userId;
+            await UpdateStateAndResetModelState(contacts);
+
             if (ModelState.IsValid)
             {
-                var userId = await GetCurrentUserId();
-                contacts.UserId = userId;
+               
                 await _conatactsSerivce.AddOrUpdateAsync(contacts,userId);
                 return RedirectToAction(nameof(Index));
             }
@@ -144,13 +147,14 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-           await UpdateStateAndResetModelState(contacts);
+            var userId = await GetCurrentUserId();
+            contacts.UserId = userId;
+            await UpdateStateAndResetModelState(contacts);
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var userId = await GetCurrentUserId();
-                    contacts.UserId = userId;
+                    
                     await _conatactsSerivce.AddOrUpdateAsync(contacts,userId);
                 }
                 catch (DbUpdateConcurrencyException)

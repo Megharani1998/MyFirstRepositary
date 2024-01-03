@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href = "~/css/datatables.min.css" asp-append-version="true" />
-    <link ref = "stylesheet" href ="~/project.styles.css" asp-append-version="true"/>       
 
+    <link rel="stylesheet" href="~/project.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -22,26 +22,27 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Controller"]?.ToString()=="Home"
-                            &&ViewContext?.RouteData?.Values["Action"]?.ToString()=="Index"?"Active-link":"")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["controller"]?.ToString() == "Home"
+                            && ViewContext?.RouteData?.Values["Action"]?.ToString()=="Index"
+                            ? "active-link":"")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Action"]?.ToString()=="privacy" 
-                            ?"Active-link":"")" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Action"]?.ToString() == "Privacy"
+                                ? "active-link" : "")" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         @if (User?.Identity?.Name?.ToString().Length > 0)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Action"]?.ToString()=="Contacts"
-                            ?"Active-link":"")" asp-area="" asp-controller="Contacts" asp-action="Index">Contacts</a>
+                                <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Controller"]?.ToString() == "Contacts"
+                               ? "active-link" : "")" asp-area="" asp-controller="Contacts" asp-action="Index">Contacts</a>
                             </li>
                             
                            @if(User?.IsInRole("Admin")?? false)
                            {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Action"]?.ToString()=="States"
-                            ?"Active-link":"")" asp-area="" asp-controller="States" asp-action="Index">State</a>
+                                    <a class="nav-link text-dark @(ViewContext?.RouteData?.Values["Controller"]?.ToString() == "States"
+                               ? "active-link" : "")" asp-area="" asp-controller="States" asp-action="Index">State</a>
                                 </li>
                            }
                             
