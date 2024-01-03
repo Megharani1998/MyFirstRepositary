@@ -35,7 +35,7 @@ namespace MyContactManagerRepo
             var result = await _context.Contacts.
                 Include(x => x.State)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == id&& x.UserId ==userId);
+                .SingleOrDefaultAsync(x => x.Id == id && x.UserId ==userId);
             return result;
         }
         public async Task<int> AddOrUpdateAsync(Contacts contacts, string userId)
